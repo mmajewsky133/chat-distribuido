@@ -1,0 +1,33 @@
+<!-- chat.component.html -->
+<div class="tw-flex tw-flex-col tw-h-screen">
+    <!-- Header -->
+    <mat-toolbar color="primary" class="tw-flex tw-items-center tw-justify-between">
+      <span class="text-lg font-bold">Chat App</span>
+      <button mat-icon-button aria-label="Settings">
+      </button>
+    </mat-toolbar>
+  
+    <!-- Chat Window -->
+    <div class="tw-flex-1 tw-overflow-auto tw-p-4">
+      <div class="tw-flex tw-flex-col tw-space-y-4">
+        <div class="tw-self-start tw-max-w-md tw-p-2 tw-bg-blue-500 tw-text-white rounded-lg">
+          <p>Hello! How can I help you today?</p>
+        </div>
+        <div class="tw-self-end tw-max-w-md tw-p-2 tw-bg-gray-300 tw-text-black tw-rounded-lg">
+          <p>Hi! I need some information about your services.</p>
+        </div>
+        <!-- Add more chat bubbles here -->
+      </div>
+    </div>
+  
+    <!-- Message Input -->
+    <div class="tw-p-4 tw-bg-gray-100 tw-border-t tw-border-gray-300 tw-flex tw-items-center">
+      <mat-form-field class="tw-flex-grow">
+        <mat-label>Type a message</mat-label>
+        <input matInput>
+        <button mat-icon-button matSuffix color="primary" class="tw-ml-2" aria-label="Send">
+            <mat-icon>send</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+  </div>

@@ -1,0 +1,7 @@
+.container {
+    margin: 0 auto;
+    display: grid;
+    place-content: center;
+    height: 100vh;
+    grid-template-rows: 1fr;
+}
