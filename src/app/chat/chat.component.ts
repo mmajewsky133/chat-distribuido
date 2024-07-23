@@ -28,13 +28,15 @@ export class ChatComponent {
   usernameForm = new FormControl('');
   chatMessage = new FormControl('');
 
+  messagesList: any[] = [];
+
   constructor(
     private chatService: ChatService
   ) { }
 
   ngOnInit(): void {
     this.chatService.getMessages().subscribe((message) => {
-      console.log(message);
+      this.messagesList.push(message);
     });
   }
 
