@@ -5,3 +5,28 @@
     height: 100vh;
     grid-template-rows: 1fr;
 }
+
+%message {
+    max-width: 50%;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    
+    p {
+        margin: 0;
+    }
+}
+
+.me-message {
+    @extend %message;
+    align-self: flex-end;
+    background-color: #3f5f90;
+    color: rgb(219, 219, 219);
+}
+
+.notme-message {
+    @extend %message;
+    align-self: flex-start;
+    background-color: #d6e3ff;
+    color: #254777;
+}
+
