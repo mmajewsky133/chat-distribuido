@@ -7,7 +7,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 
-const config: SocketIoConfig = { url: 'http://192.168.1.205:3000', options: {} };
+const config: SocketIoConfig = { url: `${window.location.hostname}:3000`, options: {} };
 
 export const appConfig: ApplicationConfig = {
   providers: [
