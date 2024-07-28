@@ -8,6 +8,8 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import { ChatService } from './chat.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { ChatObjectI, WhatI, WhoI } from '../models/chat.model';
+import { CHAT_TYPES } from '../constants/chat.constants';
 
 @Component({
   selector: 'app-chat',
@@ -30,62 +32,43 @@ export class ChatComponent {
   usernameForm = new FormControl('me');
   chatMessage = new FormControl('');
 
-  messagesList: any[] = [
-    {
-      who: 'me',
-      what: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque posuere nisl suscipit velit pulvinar vestibulum.'
-    },
-    {
-      who: 'not me',
-      what: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque posuere nisl suscipit velit pulvinar vestibulum.'
-    },
-    {
-      who: 'me',
-      what: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque posuere nisl suscipit velit pulvinar vestibulum.'
-    },
-    {
-      who: 'me',
-      what: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque posuere nisl suscipit velit pulvinar vestibulum.'
-    },
-    {
-      who: 'not me',
-      what: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque posuere nisl suscipit velit pulvinar vestibulum.'
-    },
-    {
-      who: 'not me',
-      what: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque posuere nisl suscipit velit pulvinar vestibulum.'
-    },
-    {
-      who: 'not me',
-      what: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque posuere nisl suscipit velit pulvinar vestibulum.'
-    },
-
-  ];
+  messagesList: ChatObjectI[] = [];
 
   constructor(
     private chatService: ChatService
   ) { }
 
   ngOnInit(): void {
-    this.chatService.getMessages().subscribe((message) => {
-      this.messagesList.push(message);
+    this.chatService.getAvailableMessages(this.usernameForm.value || 'Anonymous').then((messages) => {
+      console.log('got the messages back xd');
+      
+      this.messagesList = messages;
+      
+      this.chatService.messageFlow().subscribe((message) => {
+        this.messagesList.push(message);
+      });
     });
   }
 
   sendMessage(): void {
     if (this.chatMessage.value) {
-      let message = {
-        who: this.usernameForm.value || 'Anonymous',
-        what: this.chatMessage.value,
+      let message: ChatObjectI = {
+        who: {
+          userId: '12345', //Should be 0 if not known
+          username: this.usernameForm.value || 'Anonymous'
+        },
+        when: new Date(),
+        what: {
+          type: CHAT_TYPES.MESSAGE,
+          content: this.chatMessage.value
+        }
       }
       this.chatService.sendMessage(message);
       this.chatMessage.setValue('');
     }
   }
 
-  getMessageCssClassDef(message: any): string {
-    let messageMode: string
-
+  getMessageCssClassDef(message: ChatObjectI): string {
     this.messagesList.forEach((value, index) => {
       if (value === message) {
         const prevValue = (index > 0) ? this.messagesList[index-1] : null
@@ -97,6 +80,6 @@ export class ChatComponent {
       }
     })
 
-    return (message.who === this.usernameForm.value) ? 'me-message' : 'notme-message'
+    return (message.who.username === this.usernameForm.value) ? 'me-message' : 'notme-message'
   }
 }

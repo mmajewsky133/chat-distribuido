@@ -1,24 +1,56 @@
-import express from 'express' // Importa el framework Express
-import logger from 'morgan'  // Importa el middleware de logging Morgan
-import dotenv from 'dotenv'  // Importar dotenv para variables de entorno
-
+import express from 'express'
+import logger from 'morgan'
+import dotenv from 'dotenv'
 //import { createClient } from '@libsql/client' // Importa el cliente SQL personalizado
-
-import { Server } from 'socket.io' //Importa la clase Server de Socket.io
-import { createServer } from 'node:http' // Importa el servidor HTTP de Node.js
+import { Server } from 'socket.io'
+import { createServer } from 'node:http'
+import * as fs from 'node:fs'
 
 dotenv.config() // Carga las variables de entorno desde el archivo .env
 
-const port = process.env.PORT ?? 3000 // Establece el puerto del servidor desde la variable de entorno o por defecto 3000
-const app = express() // Crear una instancia de la aplicación Express
-const server = createServer(app) // Crea el servidor HTTP usando la aplicación Express
+//Init de app, HTTP server, Socket.io y const de puerto
+const port = process.env.PORT ?? 3000
+const app = express()
+const server = createServer(app)
 const io = new Server(server, {
   cors: {
     origin: '*',
   },
   connectionStateRecovery: {},
-   // Inicializar el servidor Socket.io con opciones de recuperación de estado de conexión
 })
+
+function writeToFile(data) {
+  fs.appendFileSync('chats.txt', JSON.stringify(data)+',', (err) => {
+    if (err) {
+      console.log('Error writing file:', err)
+    }
+  })
+}
+
+io.on('connection', (socket) => {
+  console.log('Un usuario se ha conectado!')
+
+  socket.on('disconnect', () => {
+    console.log('Un usuario se ha desconectado')
+  })
+  
+  socket.on('join', (hash) => {
+    fs.readFile('chats.txt', 'utf8', (err, data) => {
+      if (err) {
+        console.log('Error reading file:', err)
+      } else {
+        let msgData = data.substring(0, data.length - 1)
+        io.emit(hash, JSON.parse('[' + msgData + ']'))
+      }
+    })
+  })
+
+  socket.on('message', async (msg) => {
+    //push a list de mensajes en backend y actualizar archivo local
+    writeToFile(msg)
+    io.emit('message', msg)
+  })
+});
 
 // // Crear una instancia del cliente de la base de datos
 // const db = createClient({
@@ -36,32 +68,34 @@ const io = new Server(server, {
 //   )
 // `)
 
-// Manejar eventos de Socket.io
-io.on('connection', (socket) => {
-  console.log('Un usuario se ha conectado!')
 
-  socket.on('disconnect', () => {
-    console.log('Un usuario se ha desconectado')
-  })
+
+// Manejar eventos de Socket.io
+// io.on('connection', (socket) => {
+//   console.log('Un usuario se ha conectado!')
+
+//   socket.on('disconnect', () => {
+//     console.log('Un usuario se ha desconectado')
+//   })
   
-  socket.on('message', async (msg) => {
-    //let result
-    const username = socket.handshake.auth.username ?? 'anonymous' // Obtiene el nombre de usuario desde el handshake del socket
-    // console.log({ username })
-    // try {
-    //   // Insertar el mensaje en la tabla 'messages'
-    //   result = await db.execute({
-    //     sql: 'INSERT INTO messages (content, user) VALUES (:msg, :username)',
-    //     args: { msg, username }
-    //   })
-    // } catch (e) {
-    //   console.error(e)
-    //   return
-    // }
+//   socket.on('message', async (msg) => {
+//     //let result
+//     const username = socket.handshake.auth.username ?? 'anonymous' // Obtiene el nombre de usuario desde el handshake del socket
+//     // console.log({ username })
+//     // try {
+//     //   // Insertar el mensaje en la tabla 'messages'
+//     //   result = await db.execute({
+//     //     sql: 'INSERT INTO messages (content, user) VALUES (:msg, :username)',
+//     //     args: { msg, username }
+//     //   })
+//     // } catch (e) {
+//     //   console.error(e)
+//     //   return
+//     // }
   
-   // Emitir evento 'chat message' a todos los clientes conectados
-    io.emit('message', msg, /*result.lastInsertRowid.toString(),*/ )
-  })
+//    // Emitir evento 'chat message' a todos los clientes conectados
+//     io.emit('message', msg, /*result.lastInsertRowid.toString(),*/ )
+//   })
   
     // Recuperar mensajes cuando se restablece la conexión del socket
   // if (!socket.recovered) { 
@@ -80,9 +114,9 @@ io.on('connection', (socket) => {
   //     console.error(e)
   //   }
   // }
-})
+// })
 
-app.use(logger('dev')) // Usar el middleware de logging Morgan para registrar las peticiones HTTP
+// app.use(logger('dev')) // Usar el middleware de logging Morgan para registrar las peticiones HTTP
 
 // Establecer la ruta para el endpoint raíz '/'
 // app.get('/', (req, res) => {
@@ -92,4 +126,4 @@ app.use(logger('dev')) // Usar el middleware de logging Morgan para registrar la
 // Iniciar el servidor y escuchar en el puerto especificado
 server.listen(port, () => {
   console.log(`Server running on port ${port}`)
-})
+});

@@ -19,7 +19,7 @@
       <div class="tw-flex tw-flex-col tw-space-y-4">
         @for (message of messagesList; track message) {
           <div [ngClass]="getMessageCssClassDef(message)">
-            <p> {{ message.what }} </p>
+            <p> {{ message.what.content }} </p>
           </div>
         }
       </div>
