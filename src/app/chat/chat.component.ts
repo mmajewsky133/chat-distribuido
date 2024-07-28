@@ -40,10 +40,7 @@ export class ChatComponent {
 
   ngOnInit(): void {
     this.chatService.getAvailableMessages(this.usernameForm.value || 'Anonymous').then((messages) => {
-      console.log('got the messages back xd');
-      
       this.messagesList = messages;
-      
       this.chatService.messageFlow().subscribe((message) => {
         this.messagesList.push(message);
       });
