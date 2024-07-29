@@ -7,12 +7,15 @@
 }
 
 %message {
-    max-width: 50%;
+    max-width: 70%;
+    width: fit-content;
+    min-width: none;
     padding: 0.5rem 1rem;
     border-radius: 25px;
     
     p {
         margin: 0;
+        word-wrap: break-word;
     }
 }
 
@@ -21,6 +24,9 @@
     align-self: flex-end;
     background-color: #3f5f90;
     color: rgb(219, 219, 219);
+    p {
+        align-self: flex-end;
+    }
 }
 
 .notme-message {
@@ -28,9 +34,22 @@
     align-self: flex-start;
     background-color: #d6e3ff;
     color: #254777;
+    p {
+        align-self: flex-start;
+    }
 }
 
 .info-message {
     align-self: center;
     color: #636363;
+}
+
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 0 1rem;
+    }
+    
+    %message {
+        max-width: 90%;
+    }
 }
