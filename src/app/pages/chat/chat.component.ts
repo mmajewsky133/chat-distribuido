@@ -5,11 +5,12 @@ import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatToolbarModule} from '@angular/material/toolbar';
-import { ChatService } from './chat.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ChatObjectI, WhatI, WhoI } from '../models/chat.model';
-import { CHAT_TYPES } from '../constants/chat.constants';
+import { CHAT_TYPES } from '../../core/constants/chat.constants';
+import { ChatObjectI } from '../../core/models/chat.model';
+import { AppService } from '../../app.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chat',
@@ -29,17 +30,20 @@ import { CHAT_TYPES } from '../constants/chat.constants';
 })
 export class ChatComponent {
 
-  usernameForm = new FormControl('me');
+  currentUsername: string = localStorage.getItem('username') || 'Anonymous';
   chatMessage = new FormControl('');
 
   messagesList: ChatObjectI[] = [];
 
   constructor(
-    private chatService: ChatService
+    private chatService: AppService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
-    this.chatService.getAvailableMessages(this.usernameForm.value || 'Anonymous').then((messages) => {
+    if (!localStorage.getItem('username')) this.router.navigate(['/']);
+
+    this.chatService.getAvailableMessages(this.currentUsername).then((messages) => {
       this.messagesList = messages;
       this.chatService.messageFlow().subscribe((message) => {
         this.messagesList.push(message);
@@ -51,8 +55,8 @@ export class ChatComponent {
     if (this.chatMessage.value) {
       let message: ChatObjectI = {
         who: {
-          userId: '12345', //Should be 0 if not known
-          username: this.usernameForm.value || 'Anonymous'
+          userId: '0', //Should be 0 if not known
+          username: this.currentUsername
         },
         when: new Date(),
         what: {
@@ -66,17 +70,26 @@ export class ChatComponent {
   }
 
   getMessageCssClassDef(message: ChatObjectI): string {
-    this.messagesList.forEach((value, index) => {
-      if (value === message) {
-        const prevValue = (index > 0) ? this.messagesList[index-1] : null
-        const nextValue = (index+1 > this.messagesList.length) ? this.messagesList[index+1] : null
-
-        if (prevValue && nextValue) {
-
+    if (message.what.type === CHAT_TYPES.MESSAGE) {
+      this.messagesList.forEach((value, index) => {
+        if (value === message) {
+          const prevValue = (index > 0) ? this.messagesList[index-1] : null
+          const nextValue = (index+1 > this.messagesList.length) ? this.messagesList[index+1] : null
+  
+          if (prevValue && nextValue) {
+            //aplicar un css class pero quedara como un TODO
+          }
         }
-      }
-    })
+      })
+  
+      return (message.who.username === this.currentUsername) ? 'me-message' : 'notme-message'
+    } else {
+      return 'info-message'
+    }
+  }
 
-    return (message.who.username === this.usernameForm.value) ? 'me-message' : 'notme-message'
+  logout(): void {
+    localStorage.removeItem('username');
+    window.location.reload();
   }
 }
