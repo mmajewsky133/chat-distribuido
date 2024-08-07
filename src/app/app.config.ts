@@ -6,12 +6,13 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
+import { provideHttpClient } from '@angular/common/http';
 
 const config: SocketIoConfig = { url: `${window.location.hostname}:3000`, options: {} };
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideClientHydration(), provideAnimationsAsync(),
-    importProvidersFrom(SocketIoModule.forRoot(config))
+    importProvidersFrom(SocketIoModule.forRoot(config)), provideHttpClient()
   ]
 };
