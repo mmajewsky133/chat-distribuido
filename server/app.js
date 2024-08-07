@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
       when: new Date(),
       what: {
         type: 'notification',
-        content: `${handshake.username} se ha unido al chat`
+        content: `${handshake.username} se ha unido al chat • ${new Date().toLocaleTimeString()}`
       }
     }
     io.emit('message', connectionMessage)

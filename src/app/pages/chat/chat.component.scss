@@ -6,11 +6,22 @@
     grid-template-rows: 1fr;
 }
 
+.notme-username {
+    margin: 0 0.5rem !important;
+    color: #254777;
+    p {
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+}
+
 %message {
     max-width: 70%;
     width: fit-content;
     min-width: none;
     padding: 0.5rem 1rem;
+    margin: 0.1rem !important;
     border-radius: 25px;
     
     p {
@@ -42,6 +53,36 @@
 .info-message {
     align-self: center;
     color: #636363;
+}
+
+%message-date {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px !important;
+    p {
+        font-size: 0.875rem /* 14px */;
+        line-height: 1.25rem /* 20px */;
+        align-self: flex-start;
+        color: #6b7280;
+    }
+}
+
+.me-date {
+    @extend %message-date;
+    align-self: flex-end;
+    padding: 0rem 0.5rem;
+    p {
+        align-self: flex-end;
+    }
+}
+
+.notme-date {
+    @extend %message-date;
+    align-self: flex-start;
+    padding: 0rem 0.5rem;
+    p {
+        align-self: flex-start;
+    }
 }
 
 @media screen and (max-width: 768px) {

@@ -11,6 +11,7 @@ import { CHAT_TYPES } from '../../core/constants/chat.constants';
 import { ChatObjectI } from '../../core/models/chat.model';
 import { AppService } from '../../app.service';
 import { Router } from '@angular/router';
+import { log } from 'node:console';
 
 @Component({
   selector: 'app-chat',
@@ -46,6 +47,7 @@ export class ChatComponent {
     this.chatService.getAvailableMessages(this.currentUsername).then((messages) => {
       this.messagesList = messages;
       this.chatService.messageFlow().subscribe((message) => {
+        console.log('New message received', message);
         this.messagesList.push(message);
       });
     });
@@ -71,21 +73,51 @@ export class ChatComponent {
 
   getMessageCssClassDef(message: ChatObjectI): string {
     if (message.what.type === CHAT_TYPES.MESSAGE) {
-      this.messagesList.forEach((value, index) => {
-        if (value === message) {
-          const prevValue = (index > 0) ? this.messagesList[index-1] : null
-          const nextValue = (index+1 > this.messagesList.length) ? this.messagesList[index+1] : null
-  
-          if (prevValue && nextValue) {
-            //aplicar un css class pero quedara como un TODO
-          }
-        }
-      })
-  
       return (message.who.username === this.currentUsername) ? 'me-message' : 'notme-message'
     } else {
       return 'info-message'
     }
+  }
+
+  getMessageDateCssClassDef(message: ChatObjectI): string {
+    if (message.what.type === CHAT_TYPES.MESSAGE) {
+      return (message.who.username === this.currentUsername) ? 'me-date' : 'notme-date'
+    } else {
+      return ''
+    }
+  }
+
+  getMessageUsernameVisibility(message: ChatObjectI): boolean {
+    let visibility = false;
+    if (message.what.type === CHAT_TYPES.MESSAGE) {
+      if (message.who.username === this.currentUsername) {
+        return false;
+      }
+      this.messagesList.filter((message) => message.what.type === CHAT_TYPES.MESSAGE).forEach((value, index) => {
+        if (value === message) {
+          const prevValue = (index > 0) ? this.messagesList[index-1] : null
+          if (prevValue) {
+            visibility = (prevValue.who.username !== message.who.username) || (prevValue.what.type === CHAT_TYPES.NOTIF)
+          } else visibility = true
+        }
+      });
+    }
+    return visibility
+  }
+
+  getMessageDateVisibility(message: ChatObjectI): boolean {
+    let visibility = false;
+    if (message.what.type === CHAT_TYPES.MESSAGE) {
+      this.messagesList.filter((message) => message.what.type === CHAT_TYPES.MESSAGE).forEach((value, index) => {
+        if (value === message) {
+          const nextValue = (index+1 <= this.messagesList.length) ? this.messagesList[index+1]: null
+          if (nextValue) {
+            visibility = (nextValue.who.username !== message.who.username) || (nextValue.what.type === CHAT_TYPES.NOTIF)
+          } else visibility = true
+        }
+      });
+    }
+    return visibility
   }
 
   logout(): void {
