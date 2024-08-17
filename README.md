@@ -10,10 +10,11 @@ Package Manager: 10.8.1
 
 ## Instalacion de Dependencias
 
-### Angular
-Correr `npm i` 
+### Frontend
+Correr `npm install -g @angular/cli` para instalar la ultima version de Angular.
+Correr `npm i` para instalar dependencias.
 ### Server
-Entrar al directorio server con `cd server` y correr `npm i` 
+Entrar al directorio server con `cd server` y correr `npm i` para instalar dependencias.
 
 ## Servidor de Desarrollo
 
