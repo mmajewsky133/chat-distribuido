@@ -5,6 +5,7 @@ import * as fs from 'node:fs'
 import cors from 'cors'
 import mongoose from 'mongoose'
 import { Chat } from './models/chat.model.js'
+import { User } from './models/user.model.js'
 
 //Init de app, HTTP server, Socket.io y const de puerto
 const port = 3000
