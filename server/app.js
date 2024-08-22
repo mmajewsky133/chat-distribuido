@@ -3,6 +3,8 @@ import { Server } from 'socket.io'
 import { createServer } from 'node:http'
 import * as fs from 'node:fs'
 import cors from 'cors'
+import mongoose from 'mongoose'
+import { Chat } from './models/chat.model.js'
 
 //Init de app, HTTP server, Socket.io y const de puerto
 const port = 3000
@@ -18,18 +20,18 @@ const io = new Server(server, {
 app.use(cors())
 
 //Funciona para escribir datos al archivo de chats.txt
-function writeToFile(data) {
-  fs.appendFileSync('chats.txt', JSON.stringify(data)+',', (err) => {
-    if (err) {
-      console.log('Error writing file:', err)
-    }
-  })
+async function writeToFile(data) {
+  try {
+    await Chat.create(data)
+  } catch (error) {
+    console.log('Error writing file:', err)
+  }
 }
 
 io.on('connection', (socket) => {
   socket.on('disconnect', () => {});
   
-  socket.on('join', (handshake) => {
+  socket.on('join', async (handshake) => {
     let connectionMessage = {
       who: {
         userId: '0', //Should be 0 if not known
@@ -41,21 +43,18 @@ io.on('connection', (socket) => {
         content: `${handshake.username} se ha unido al chat • ${new Date().toLocaleTimeString()}`
       }
     }
-    io.emit('message', connectionMessage)
-    
-    fs.readFile('chats.txt', 'utf8', (err, data) => {
-      if (err) {
-        console.log('Error reading file:', err)
-      } else {
-        let msgData = data.substring(0, data.length - 1)
-        io.emit(handshake.connectionHash, JSON.parse('[' + msgData + ']'))
-      }
+    await Chat.find().then((data) => {
+      io.emit('message', connectionMessage)
+      io.emit(handshake.connectionHash, data)
+    }).catch((err) => {
+      console.log('Error reading file:', err)
     })
   });
 
   socket.on('message', async (msg) => {
-    writeToFile(msg)
-    io.emit('message', msg)
+    writeToFile(msg).then(() => {
+      io.emit('message', msg)
+    })
   });
 });
 
@@ -104,6 +103,13 @@ app.post('/signup', (req, res) => {
   })
 });
 
-server.listen(port, () => {
-  console.log(`Server running on port ${port}`)
-});
+
+mongoose.connect('mongodb://localhost:27017/chatapp').then(() => {
+  console.log('Connected to database')
+  server.listen(port, () => {
+    console.log(`Server running on port ${port}`)
+  });
+})
+.catch(() => {
+  console.log('Error connecting to database');
+})
