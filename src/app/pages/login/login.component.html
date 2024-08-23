@@ -4,24 +4,38 @@
     <h3 class="text-lg font-bold">Chat App</h3>
     <div class="h-3/4 flex flex-col justify-center">
       <form class="space-y-4 flex flex-col" (ngSubmit)="submit()">
-        <div class="flex flex-col">
-          <mat-form-field appearance="fill">
-            <mat-label>Username</mat-label>
-            <input matInput #username [formControl]="usernameForm" placeholder="Ingresa tu username">
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Contraseña</mat-label>
-            <input matInput #password [type]="'password'" [formControl]="passwordForm" placeholder="Ingresa tu contraseña">
-          </mat-form-field>
-        </div>
         @if (!SignUp) {
+          <div class="flex flex-col">
+            <mat-form-field appearance="fill">
+              <mat-label>Username</mat-label>
+              <input matInput #username [formControl]="usernameForm" placeholder="Ingresa tu username">
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+              <mat-label>Contraseña</mat-label>
+              <input matInput #password [type]="'password'" [formControl]="passwordForm" placeholder="Ingresa tu contraseña">
+            </mat-form-field>
+          </div>
           <div class="space-y-2 flex flex-col">
             <button mat-raised-button color="primary" [disabled]="!username.value && !password.value" type="submit" class="w-full">Ingresar</button>
             <button mat-raised-button color="secondary" (click)="toggleSignUp()" class="w-full">Registrate</button>
           </div>
         } @else {
+          <div class="flex flex-col">
+            <mat-form-field appearance="fill">
+              <mat-label>Username</mat-label>
+              <input matInput #username [formControl]="usernameForm" placeholder="Ingresa el nombre de usuario">
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+              <mat-label>Correo</mat-label>
+              <input matInput #email [formControl]="emailForm" placeholder="Ingresa el correo del usuario">
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+              <mat-label>Contraseña</mat-label>
+              <input matInput #password [type]="'password'" [formControl]="passwordForm" placeholder="Ingresa la contraseña">
+            </mat-form-field>
+          </div>
           <div class="space-y-2 flex flex-col">
-            <button mat-raised-button color="primary" [disabled]="!username.value && !password.value" type="submit" class="w-full">Registrarse</button>
+            <button mat-raised-button color="primary" [disabled]="!username.value && !email.value && !password.value" type="submit" class="w-full">Registrar Usuario</button>
             <button mat-raised-button color="secondary" (click)="toggleSignUp()" class="w-full">Cancelar</button>
           </div>
         }

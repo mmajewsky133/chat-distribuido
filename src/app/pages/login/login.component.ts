@@ -5,7 +5,8 @@ import { AppService } from '../../app.service';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { LoginCredentialsI } from '../../core/models/connection.model';
+import { LoginCredentialsI, UserRegistrationI } from '../../core/models/connection.model';
+import { log } from 'node:console';
 
 @Component({
   selector: 'app-login',
@@ -24,6 +25,7 @@ export class LoginComponent {
 
   usernameForm = new FormControl('');
   passwordForm = new FormControl('');
+  emailForm = new FormControl('');
 
   SignUp: boolean = false;
 
@@ -63,12 +65,21 @@ export class LoginComponent {
   }
 
   signup(): void {
-    if (this.usernameForm.value && this.passwordForm.value) {
-      console.log('signup');
-      let creds: LoginCredentialsI = {
+    if (this.usernameForm.value && this.passwordForm.value && this.emailForm.value) {
+      let salt = this.chatService.salt;
+      let pass = this.chatService.generateUserHash(
+        this.usernameForm.value,
+        this.passwordForm.value,
+        salt
+      );
+      let creds: UserRegistrationI = {
         username: this.usernameForm.value,
-        password: this.passwordForm.value
+        email: this.emailForm.value,
+        salt: salt,
+        pass: pass,
+        active : true,
       }
+      console.log(creds);
       this.chatService.signup(creds).then((response) => {
         this.toggleSignUp();
         this._snackBar.open('Se ha registrado correctamente', 'ok', {

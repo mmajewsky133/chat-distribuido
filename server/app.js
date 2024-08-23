@@ -6,6 +6,7 @@ import cors from 'cors'
 import mongoose from 'mongoose'
 import { Chat } from './models/chat.model.js'
 import { User } from './models/user.model.js'
+import { sha256 } from 'js-sha256'
 
 //Init de app, HTTP server, Socket.io y const de puerto
 const port = 3000
@@ -19,6 +20,7 @@ const io = new Server(server, {
 })
 
 app.use(cors())
+app.use(express.json())
 
 //Funciona para escribir datos al archivo de chats.txt
 async function writeToFile(data) {
@@ -59,51 +61,59 @@ io.on('connection', (socket) => {
   });
 });
 
-app.use(express.json())
-
-app.post('/login', (req, res) => {
+//Iniciar Sesion
+app.post('/auth/login', async (req, res) => {
   let userCreds = {
-    username: req.body.username,
-    hash: req.body.loginHash
+    user: req.body.username,
+    pass: req.body.password
   }
-  fs.readFile('users.txt', 'utf8', (err, data) => {
-    if (err) {
-      res.status(500).json({ error: 'Error al tratar de iniciar sesion' })
+
+  try {
+    let regUser = await User.findOne({ username: userCreds.user })
+    if (regUser.pass === sha256(userCreds.pass+':'+regUser.salt)) {
+      //Aqui debo de implementar el JWT
+      res.status(200).send()
     } else {
-      let userData = JSON.parse('['+data.substring(0, data.length - 1)+']')
-      if (userData.find((user) => user.username === userCreds.username && user.hash === userCreds.hash)) {
+      res.status(401).json({ error: 'Las credenciales no son correctas' })
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al tratar de iniciar sesion' })
+  }
+});
+
+//Validar la existencia del user
+app.get('/auth/users/:user', async (req, res) => {
+  try {
+    await User.findOne({ username: req.params.user }).then((data) => {
+      if (data) {
         res.status(200).send()
       } else {
-        res.status(401).json({ error: 'Usuario no autorizado' })
+        res.status(404).send()
       }
-    }
-  })
-});
-
-app.post('/signup', (req, res) => {
-  let userCreds = {
-    username: req.body.username,
-    hash: req.body.loginHash
+    })
+  } catch (error) {
+    res.status(500).json({ error: 'Hubo un error al crear el usuario' })
   }
-  fs.readFile('users.txt', 'utf8', (err, data) => {
-    if (err) {
-      res.status(500).json({ error: 'Error al tratar de iniciar sesion' })
-    } else {
-      if (data.includes(userCreds.username)) {
-        res.status(401).json({ error: 'Usuario ya registrado' })
-      } else {
-        fs.appendFile('users.txt', JSON.stringify(userCreds)+',', (err) => {
-          if (err) {
-            res.status(500).json({ error: 'Error al tratar de registrarse' })
-          } else {
-            res.status(201).send()
-          }
-        })
-      }
-    }
-  })
 });
 
+//Agregar User (Como admin)
+app.post('/admin/users', async (req, res) => {
+  let newUserCreds = {
+    username: req.body.username,
+    salt: req.body.salt,
+    pass: req.body.pass,
+    email: req.body.email,
+    active: req.body.active
+  }
+
+  try {
+    await User.create(newUserCreds).then(() => {
+      res.status(201).send()
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Hubo un error al crear el usuario' })
+  }
+});
 
 mongoose.connect('mongodb://localhost:27017/chatapp').then(() => {
   console.log('Connected to database')

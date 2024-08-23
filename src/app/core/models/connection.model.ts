@@ -3,6 +3,14 @@ export interface LoginCredentialsI {
     password: string;
 }
 
+export interface UserRegistrationI {
+    username: string,
+    salt: string,
+    pass: string,
+    email: string,
+    active: Boolean
+}
+
 export interface LoginRequestI {
     username: string;
     loginHash: string;
