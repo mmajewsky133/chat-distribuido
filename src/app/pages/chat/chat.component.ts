@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 import {MatListModule} from '@angular/material/list';
 import {MatInputModule} from '@angular/material/input';
@@ -30,6 +30,7 @@ import { log } from 'node:console';
   styleUrl: './chat.component.scss'
 })
 export class ChatComponent {
+  @ViewChild('scroll') private chatScroll: ElementRef;
 
   currentUsername: string = localStorage.getItem('username') || 'Anonymous';
   chatMessage = new FormControl('');
@@ -49,12 +50,25 @@ export class ChatComponent {
       this.chatService.messageFlow().subscribe((message) => {
         console.log('New message received', message);
         this.messagesList.push(message);
+        
       });
     });
   }
 
+  ngAfterViewChecked(){
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    try {
+      this.chatScroll.nativeElement.scrollTop = this.chatScroll.nativeElement.scrollHeight;
+    } catch(err) {
+      console.error('Scrolling error:', err);
+    }
+  }
+
   sendMessage(): void {
-    if (this.chatMessage.value) {
+    if (this.chatMessage.value && this.chatMessage.value.trim() !== '') {
       let message: ChatObjectI = {
         who: {
           userId: '0', //Should be 0 if not known
@@ -63,7 +77,7 @@ export class ChatComponent {
         when: new Date(),
         what: {
           type: CHAT_TYPES.MESSAGE,
-          content: this.chatMessage.value
+          content: this.chatMessage.value.trim()
         }
       }
       this.chatService.sendMessage(message);
