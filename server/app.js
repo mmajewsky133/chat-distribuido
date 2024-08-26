@@ -31,10 +31,12 @@ async function writeToFile(data) {
   }
 }
 
+var socketList = [];
 io.on('connection', (socket) => {
-  socket.on('disconnect', () => {});
+  const id = socket.id;
   
   socket.on('join', async (handshake) => {
+    socketList[id] = handshake.username;
     let connectionMessage = {
       who: {
         userId: '0', //Should be 0 if not known
@@ -58,6 +60,21 @@ io.on('connection', (socket) => {
     writeToFile(msg).then(() => {
       io.emit('message', msg)
     })
+  });
+
+  socket.on('disconnect', (username) => {
+    let disconnectionMessage = {
+      who: {
+        userId: '0', //Should be 0 if not known
+        username: username
+      },
+      when: new Date(),
+      what: {
+        type: 'notification',
+        content: `${socketList[id]} ha abandonado el chat • ${new Date().toLocaleTimeString()}`
+      }
+    }
+    io.emit('message', disconnectionMessage)
   });
 });
 
