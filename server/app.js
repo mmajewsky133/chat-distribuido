@@ -132,7 +132,8 @@ app.post('/admin/users', async (req, res) => {
   }
 });
 
-mongoose.connect('mongodb://localhost:27017/chatapp').then(() => {
+//mmajz133aee:QNuj6tMNhR09PDLh
+mongoose.connect('mongodb+srv://mmajz133aee:<db_password>@chatapp.hh0a2.mongodb.net/?retryWrites=true&w=majority&appName=ChatApp').then(() => {
   console.log('Connected to database')
   server.listen(port, () => {
     console.log(`Server running on port ${port}`)

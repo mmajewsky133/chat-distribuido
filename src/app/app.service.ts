@@ -37,7 +37,7 @@ export class AppService {
 
   public login = async (credentials: LoginCredentialsI): Promise<string> => {
     return await firstValueFrom(
-      this.http.post<any>('http://localhost:3000/auth/login', credentials).pipe(
+      this.http.post<any>('https://chat-distribuido-server.vercel.app/auth/login', credentials).pipe(
         retry(2),
         catchError((error: any) => 
           throwError(
@@ -50,7 +50,7 @@ export class AppService {
 
   public signup = async (credentials: UserRegistrationI): Promise<string> => {
     return await firstValueFrom(
-      this.http.post<any>('http://localhost:3000/admin/users', credentials).pipe(
+      this.http.post<any>('https://chat-distribuido-server.vercel.app/admin/users', credentials).pipe(
         retry(2),
         catchError((error: any) => 
           throwError(
