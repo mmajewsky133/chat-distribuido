@@ -7,7 +7,6 @@ import jwt from 'jsonwebtoken'
 import { sha256 } from 'js-sha256'
 import { Chat } from './models/chat.model.js'
 import { User } from './models/user.model.js'
-import { Role } from './models/role.model.js'
 
 //Init de app, HTTP server, Socket.io y const de puerto
 const PORT = 3000
@@ -115,7 +114,7 @@ app.post('/auth/login', async (req, res) => {
         token = jwt.sign(
           { 
             user: regUser.username, 
-            role: regUser.role.codigo 
+            admin: regUser.admin 
           },
           SECRET_KEY,
           { expiresIn: '8h' }
@@ -154,6 +153,7 @@ app.post('/admin/users', async (req, res) => {
     salt: req.body.salt,
     pass: req.body.pass,
     email: req.body.email,
+    admin: req.body.admin,
     active: req.body.active
   }
 
@@ -189,32 +189,6 @@ app.get('/admin/users/:user', async (req, res) => {
     })
   } catch (error) {
     res.status(500).json({ error: 'Hubo un error al obtener el usuario' })
-  }
-});
-
-//Obtener Roles (Como Admin)
-app.get('/admin/roles', async (req, res) => {
-  try {
-    await Role.find().then(() => {
-      res.status(200).json(data)
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Hubo un error al crear el rol puto' })
-  }
-});
-
-//Agregar Rol (Dev Testing)
-app.post('/admin/roles', async (req, res) => {
-  let newRole = {
-    codigo: req.body.codigo,
-    label: req.body.label
-  }
-  try {
-    await Role.create(newRole).then(() => {
-      res.status(201).send()
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Hubo un error al crear el rol puto' })
   }
 });
 
@@ -256,5 +230,5 @@ mongoose.connect('mongodb+srv://mmajz133aee:QNuj6tMNhR09PDLh@chatapp.hh0a2.mongo
   });
 })
 .catch(() => {
-  console.log('Error connecting to database');
+  console.log('Error connecting to database ');
 })
