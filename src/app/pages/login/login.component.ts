@@ -36,7 +36,8 @@ export class LoginComponent {
   ) { }
 
   ngOnInit(): void {
-    if (localStorage.getItem('username')) this.router.navigate(['/chat']);
+    let jwt = typeof window !== 'undefined' ? localStorage.getItem('jwt') : '';
+    if (jwt && typeof window !== 'undefined') this.router.navigate(['/chat']);
   }
 
   submit(): void {
@@ -52,7 +53,7 @@ export class LoginComponent {
       }
       this.chatService.login(creds).then((response) => {
         if (this.usernameForm.value) {
-          localStorage.setItem('username', this.usernameForm.value);
+          typeof window !== 'undefined' ? localStorage.setItem('username', this.usernameForm.value) : '';
           this.router.navigate(['/chat']);
         }
       }).catch((error) => {

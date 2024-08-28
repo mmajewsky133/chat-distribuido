@@ -32,7 +32,7 @@ import { log } from 'node:console';
 export class ChatComponent {
   @ViewChild('scroll') private chatScroll: ElementRef;
 
-  currentUsername: string = localStorage.getItem('username') || 'Anonymous';
+  currentUsername: string = typeof window !== 'undefined' ? localStorage.getItem('username') || '' : '';
   chatMessage = new FormControl('');
 
   messagesList: ChatObjectI[] = [];
@@ -43,7 +43,7 @@ export class ChatComponent {
   ) { }
 
   ngOnInit(): void {
-    if (!localStorage.getItem('username')) this.router.navigate(['/']);
+    if (!this.currentUsername) this.router.navigate(['/']);
 
     this.chatService.getAvailableMessages(this.currentUsername).then((response) => {
       if (response.error) {
@@ -137,7 +137,7 @@ export class ChatComponent {
   }
 
   logout(): void {
-    localStorage.removeItem('username');
+    typeof window !== 'undefined' ? localStorage.removeItem('username') : '';	
     window.location.reload();
   }
 }

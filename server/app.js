@@ -153,7 +153,7 @@ app.post('/admin/users', async (req, res) => {
     salt: req.body.salt,
     pass: req.body.pass,
     email: req.body.email,
-    admin: req.body.admin,
+    admin: true, //req.body.admin,
     active: req.body.active
   }
 

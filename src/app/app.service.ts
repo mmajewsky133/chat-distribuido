@@ -22,7 +22,7 @@ export class AppService {
     let handshake = {
       connectionHash,
       username,
-      jwt: localStorage.getItem('jwt') || ''
+      jwt: typeof window !== 'undefined' ? localStorage.getItem('jwt') || '' : ''
     }
     this.socket.emit('join', handshake);
     return this.socket.fromOneTimeEvent(connectionHash)
