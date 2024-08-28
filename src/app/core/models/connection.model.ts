@@ -1,3 +1,5 @@
+import { ChatObjectI } from "./chat.model";
+
 export interface LoginCredentialsI {
     username: string;
     password: string;
@@ -19,4 +21,10 @@ export interface LoginRequestI {
 export interface HandshakeI {
     connectionHash: string;
     username: string;
+    jwt: string;
+}
+
+export interface ChatHistoryResponseI {
+    messages: ChatObjectI[];
+    error: string;
 }

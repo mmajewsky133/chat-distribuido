@@ -45,12 +45,14 @@ export class ChatComponent {
   ngOnInit(): void {
     if (!localStorage.getItem('username')) this.router.navigate(['/']);
 
-    this.chatService.getAvailableMessages(this.currentUsername).then((messages) => {
-      this.messagesList = messages;
+    this.chatService.getAvailableMessages(this.currentUsername).then((response) => {
+      if (response.error) {
+        this.router.navigate(['/']);
+      }
+      this.messagesList = response.messages;
       this.chatService.messageFlow().subscribe((message) => {
         console.log('New message received', message);
         this.messagesList.push(message);
-        
       });
     });
   }

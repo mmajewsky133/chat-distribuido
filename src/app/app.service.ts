@@ -3,7 +3,7 @@ import { Socket } from 'ngx-socket-io';
 import { catchError, firstValueFrom, Observable, retry, throwError } from 'rxjs';
 import { CHAT_KEYGEN_CHARS } from './core/constants/chat.constants';
 import { ChatObjectI } from './core/models/chat.model';
-import { LoginCredentialsI, LoginRequestI, UserRegistrationI } from './core/models/connection.model';
+import { ChatHistoryResponseI, LoginCredentialsI, LoginRequestI, UserRegistrationI } from './core/models/connection.model';
 import { sha256 } from 'js-sha256'; 
 import { HttpClient } from '@angular/common/http';
 
@@ -17,11 +17,12 @@ export class AppService {
     private http: HttpClient
   ) { }
 
-  public getAvailableMessages(username: string): Promise<ChatObjectI[]> {
+  public getAvailableMessages(username: string): Promise<ChatHistoryResponseI> {
     let connectionHash: string = this.generateHash();
     let handshake = {
       connectionHash,
-      username
+      username,
+      jwt: localStorage.getItem('jwt') || ''
     }
     this.socket.emit('join', handshake);
     return this.socket.fromOneTimeEvent(connectionHash)
