@@ -38,41 +38,38 @@ io.on('connection', (socket) => {
   
   socket.on('join', async (handshake) => {
     //Agregar aqui que mande en el handshake el JSON Web Token y validarlo
-    if (!handshake.jwt || !handshake.jwt.lenght() <= 0) {
-      io.emit(handshake.connectionHash, {
-        messages: null,
-        error: 'El token no es valido'
-      })
-    }
+    if (handshake.jwt) {
+      try {
+        jwt.verify(handshake.jwt, SECRET_KEY)
 
-    let decodedToken = jwt.verify(handshake.jwt, SECRET_KEY)
-    console.log(decodedToken)
-    
-    if (decodedToken.error) {
-      io.emit(handshake.connectionHash, {
-        messages: null,
-        error: 'El token no es valido'
-      });
-    } else {
-      userList[id] = handshake.username;
-      let connectionMessage = {
-        who: {
-          userId: '0', //Should be 0 if not known
-          username: handshake.username
-        },
-        when: new Date(),
-        what: {
-          type: 'notification',
-          content: `${handshake.username} se ha unido al chat • ${new Date().toLocaleTimeString()}`
+        userList[id] = handshake.username;
+        let connectionMessage = {
+          who: {
+            userId: '0', //Should be 0 if not known
+            username: handshake.username
+          },
+          when: new Date(),
+          what: {
+            type: 'notification',
+            content: `${handshake.username} se ha unido al chat • ${new Date().toLocaleTimeString()}`
+          }
         }
+        await Chat.find().then((data) => {
+          io.emit('message', connectionMessage)
+          io.emit(handshake.connectionHash, {
+            messages: data,
+            error: null
+          });
+          io.emit('userList-admin', userList)
+        }).catch((err) => {
+          console.log('Error reading file:', err)
+        })
+      } catch (error) {
+        io.emit(handshake.connectionHash, {
+          messages: null,
+          error: 'El token no es valido'
+        });
       }
-      await Chat.find().then((data) => {
-        io.emit('message', connectionMessage)
-        io.emit(handshake.connectionHash, data)
-        io.emit('userList-admin', userList)
-      }).catch((err) => {
-        console.log('Error reading file:', err)
-      })
     }
   });
 
@@ -83,18 +80,20 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', (username) => {
-    let disconnectionMessage = {
-      who: {
-        userId: '0', //Should be 0 if not known
-        username: username
-      },
-      when: new Date(),
-      what: {
-        type: 'notification',
-        content: `${socketList[id]} ha abandonado el chat • ${new Date().toLocaleTimeString()}`
+    if (userList[id]) {
+      let disconnectionMessage = {
+        who: {
+          userId: '0', //Should be 0 if not known
+          username: username
+        },
+        when: new Date(),
+        what: {
+          type: 'notification',
+          content: `${userList[id]} ha abandonado el chat • ${new Date().toLocaleTimeString()}`
+        }
       }
+      io.emit('message', disconnectionMessage)
     }
-    io.emit('message', disconnectionMessage)
   });
 });
 
@@ -107,8 +106,7 @@ app.post('/auth/login', async (req, res) => {
 
   try {
     let regUser = await User.findOne({ username: userCreds.user })
-    if (regUser.pass === sha256(userCreds.pass+':'+regUser.salt)) {
-      
+    if (regUser && regUser.pass === sha256(userCreds.pass+':'+regUser.salt)) {
       let token;
       try {
         token = jwt.sign(

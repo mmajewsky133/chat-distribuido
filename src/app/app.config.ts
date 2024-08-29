@@ -8,7 +8,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { provideHttpClient } from '@angular/common/http';
 
-const config: SocketIoConfig = { url: `https://chat-distribuido-server.vercel.app`, options: {} };
+const config: SocketIoConfig = { url: `${window.location.hostname}:3000`, options: {} };
 
 export const appConfig: ApplicationConfig = {
   providers: [

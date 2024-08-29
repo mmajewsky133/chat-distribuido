@@ -12,6 +12,9 @@ import { HttpClient } from '@angular/common/http';
 })
 export class AppService {
 
+  // backendUrl = `${window.location.hostname}:3000`;
+  backendUrl = 'http://localhost:3000';
+
   constructor(
     private socket: Socket,
     private http: HttpClient
@@ -22,7 +25,7 @@ export class AppService {
     let handshake = {
       connectionHash,
       username,
-      jwt: typeof window !== 'undefined' ? localStorage.getItem('jwt') || '' : ''
+      jwt: localStorage.getItem('jwt') || ''
     }
     this.socket.emit('join', handshake);
     return this.socket.fromOneTimeEvent(connectionHash)
@@ -36,9 +39,9 @@ export class AppService {
     return this.socket.fromEvent('message');
   }
 
-  public login = async (credentials: LoginCredentialsI): Promise<string> => {
+  public login = async (credentials: LoginCredentialsI): Promise<any> => {
     return await firstValueFrom(
-      this.http.post<any>('https://chat-distribuido-server.vercel.app/auth/login', credentials).pipe(
+      this.http.post<any>(this.backendUrl+'/auth/login', credentials).pipe(
         retry(2),
         catchError((error: any) => 
           throwError(
@@ -51,7 +54,7 @@ export class AppService {
 
   public signup = async (credentials: UserRegistrationI): Promise<string> => {
     return await firstValueFrom(
-      this.http.post<any>('https://chat-distribuido-server.vercel.app/admin/users', credentials).pipe(
+      this.http.post<any>(this.backendUrl+'/admin/users', credentials).pipe(
         retry(2),
         catchError((error: any) => 
           throwError(

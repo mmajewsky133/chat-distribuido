@@ -1,7 +1,8 @@
 <!-- chat.component.html -->
-<div class="flex flex-col h-screen">
+<div class="flex items-center rounded-lg shadow-md justify-center h-screen w-screen">
+  <div class="flex flex-col h-full md:h-5/6 w-full md:w-11/12">
     <!-- Header -->
-    <mat-toolbar color="primary" class="flex items-center justify-between">
+    <mat-toolbar color="primary" class="flex items-center justify-between md:rounded-t-lg md:rounded-tr-lg">
       <span class="!text-lg !font-bold">Chat App</span>
       <div class="flex items-center">
         <button mat-icon-button aria-label="Settings" (click)="logout()">
@@ -28,7 +29,7 @@
     </div>
   
     <!-- Message Input -->
-    <div class="p-4 bg-gray-100 border-t border-gray-300 flex items-center">
+    <div class="p-4 bg-gray-100 border-t md:rounded-b-lg md:rounded-br-lg border-gray-300 flex items-center">
       <mat-form-field class="flex-grow">
         <mat-label>Type a message</mat-label>
         <input matInput [formControl]="chatMessage" (keyup.enter)="sendMessage()">
@@ -38,3 +39,4 @@
       </mat-form-field>
     </div>
   </div>
+</div>

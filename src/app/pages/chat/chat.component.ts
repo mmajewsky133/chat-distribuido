@@ -43,11 +43,12 @@ export class ChatComponent {
   ) { }
 
   ngOnInit(): void {
-    if (!this.currentUsername) this.router.navigate(['/']);
+    if (!localStorage.getItem('jwt')) this.router.navigate(['/']);
 
     this.chatService.getAvailableMessages(this.currentUsername).then((response) => {
+      console.log('Chat history:', response);
       if (response.error) {
-        this.router.navigate(['/']);
+        this.logout();
       }
       this.messagesList = response.messages;
       this.chatService.messageFlow().subscribe((message) => {
@@ -138,6 +139,7 @@ export class ChatComponent {
 
   logout(): void {
     typeof window !== 'undefined' ? localStorage.removeItem('username') : '';	
-    window.location.reload();
+    typeof window !== 'undefined' ? localStorage.removeItem('jwt') : '';	
+    this.router.navigate(['/']);
   }
 }

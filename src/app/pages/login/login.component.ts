@@ -54,6 +54,7 @@ export class LoginComponent {
       this.chatService.login(creds).then((response) => {
         if (this.usernameForm.value) {
           typeof window !== 'undefined' ? localStorage.setItem('username', this.usernameForm.value) : '';
+          typeof window !== 'undefined' ? localStorage.setItem('jwt', response.token) : '';
           this.router.navigate(['/chat']);
         }
       }).catch((error) => {
